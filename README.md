@@ -25,7 +25,7 @@ my_project/
 ### Windows
 
 * Build Ezpie from source or download the latest build
-    * https://github.com/ezpie/ezpie/releases
+    * https://github.com/Jupiee/ezpie/releases
     
 * put the ezpie.exe from the build directory in your PATH
 ```C:\Users\<YourUsername>\AppData\Local\Microsoft\WindowsApps\```
@@ -33,7 +33,7 @@ my_project/
 ### Linux
 
 * Build Ezpie from source or download the latest build
-    * https://github.com/ezpie/ezpie/releases
+    * https://github.com/Jupiee/ezpie/releases
 
 * put the ezpie from the build directory in your PATH
 ```usr/local/bin```
