@@ -35,16 +35,26 @@ fn check_dir(dir_name: &String) -> bool {
 
 fn make_readme(dir_name: &String) {
 
-    let markdown= "## README documentation for ".to_owned() + dir_name;
+    let content= format!("## README documentation for {}", dir_name);
 
     let mut file= fs::File::create("README.md").unwrap();
 
-    file.write_all(&markdown.as_bytes()).unwrap();
+    file.write_all(content.as_bytes()).unwrap();
+
+}
+
+fn make_gitignore() {
+
+    let content= format!(".DS_Store\n/src/__pycache__");
+
+    let mut file= fs::File::create(".gitignore").unwrap();
+
+    file.write_all(content.as_bytes()).unwrap()
 
 }
 
 // creates a directory with python file
-fn make_files(dir_name: String, file_name: String, content: String) {
+fn make_file(dir_name: String, file_name: String, content: String) {
     
     let path: String;
 
@@ -62,7 +72,7 @@ fn make_files(dir_name: String, file_name: String, content: String) {
 
     let mut pyfile= fs::File::create(path).unwrap();
 
-    pyfile.write_all(&content.as_bytes()).unwrap();
+    pyfile.write_all(content.as_bytes()).unwrap();
 
 }
 
@@ -72,19 +82,23 @@ fn main() {
 
     match &prompt {
 
-        Ok(name) => fs::create_dir("./".to_owned() + &name).expect("Unable to create directory"),
+        Ok(name) => fs::create_dir(format!("./{}", name)).expect("Unable to create directory"),
         Err(reason) => println!("{:?}", reason)
 
     }
 
     let dir_name= prompt.unwrap();
 
-    env::set_current_dir("./".to_owned() + &dir_name).unwrap();
+    let main_content= "def main():\n\n    print('Hello World')\n\nif __name__ == '__main__':\n\n    main()".to_owned();
+
+    env::set_current_dir(format!("./{}", dir_name)).unwrap();
 
     make_readme(&dir_name);
 
-    make_files("src".to_owned(), "main".to_owned(), "print('Hello World')".to_owned());
+    make_file("src".to_owned(), "main".to_owned(), main_content);
 
-    make_files("src".to_owned(), "__init__".to_owned(), "".to_owned());
+    make_file("src".to_owned(), "__init__".to_owned(), "".to_owned());
+
+    make_gitignore();
 
 }
