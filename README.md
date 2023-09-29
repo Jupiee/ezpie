@@ -49,3 +49,7 @@ my_project/
 ```rust
 cargo build --release
 ```
+
+## License
+
+[MIT License](LICENSE)
