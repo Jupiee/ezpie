@@ -8,6 +8,12 @@ fn dirname_validation(name: &str) -> Result<String, String> {
     // checks if the name has /, \ and : in it
     if name.len() > 0 && !name.contains("/") && !name.contains("\\") && !name.contains(":") {
 
+        if check_dir(&name.to_owned()) {
+
+            return Err("Directory already exists".into())
+
+        }
+
         return Ok(name.to_string().replace(" ", "-"))  
 
     }
@@ -89,7 +95,7 @@ fn main() {
 
     let dir_name= prompt.unwrap();
 
-    let main_content= "def main():\n\n    print('Hello World')\n\nif __name__ == '__main__':\n\n    main()".to_owned();
+    let main_content= "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()".to_owned();
 
     env::set_current_dir(format!("./{}", dir_name)).unwrap();
 
