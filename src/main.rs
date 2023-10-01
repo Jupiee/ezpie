@@ -6,13 +6,13 @@ use cli_prompts::{ prompts::{Input, AbortReason}, DisplayPrompt};
 fn dirname_validation(name: &str) -> Result<String, String> {
 
     // checks if the name has /, \ and : in it
-    if name.len() > 0 && !name.contains("/") && !name.contains("\\") && !name.contains(":") {
+    if check_dir(&name.to_owned()) {
 
-        if check_dir(&name.to_owned()) {
+        return Err("Directory already exists".into())
 
-            return Err("Directory already exists".into())
+    }
 
-        }
+    else if name.len() > 0 && !name.contains("/") && !name.contains("\\") && !name.contains(":") {
 
         return Ok(name.to_string().replace(" ", "-"))  
 
@@ -60,25 +60,17 @@ fn make_gitignore() {
 }
 
 // creates a directory with python file
-fn make_file(dir_name: String, file_name: String, content: String) {
+fn make_src() {
     
-    let path: String;
+    fs::create_dir("./src".to_owned()).expect("Unable to create directory");
 
-    if check_dir(&dir_name) {
+    let main_content= "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()";
 
-        path= format!("{}/{}.py", dir_name, file_name);
+    let mut main_file= fs::File::create("src/main.py").unwrap();
 
-    } else {
+    fs::File::create("src/__init__.py").unwrap();
 
-        fs::create_dir("./".to_owned() + &dir_name).expect("Unable to create directory");
-
-        path= format!("{}/{}.py", dir_name, file_name);
-
-    }
-
-    let mut pyfile= fs::File::create(path).unwrap();
-
-    pyfile.write_all(content.as_bytes()).unwrap();
+    main_file.write_all(main_content.as_bytes()).unwrap();
 
 }
 
@@ -95,15 +87,11 @@ fn main() {
 
     let dir_name= prompt.unwrap();
 
-    let main_content= "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()".to_owned();
-
     env::set_current_dir(format!("./{}", dir_name)).unwrap();
 
     make_readme(&dir_name);
 
-    make_file("src".to_owned(), "main".to_owned(), main_content);
-
-    make_file("src".to_owned(), "__init__".to_owned(), "".to_owned());
+    make_src();
 
     make_gitignore();
 
