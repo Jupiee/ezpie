@@ -14,6 +14,7 @@ eg.
 ```
 my_project/
 ├── README.md
+├── requirements.txt
 ├── .gitignore
 ├── src/
 │   ├── __init__.py
