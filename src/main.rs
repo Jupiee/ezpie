@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::Path;
 use std::fs;
 use std::env;
 use cli_prompts::{ prompts::{Input, AbortReason}, DisplayPrompt};
@@ -35,14 +36,9 @@ fn dirname_validation(name: &str) -> Result<String, String> {
 
 fn check_dir(dir_name: &String) -> bool {
     
-    let metadata= fs::metadata(dir_name);
+    let path= Path::new(&dir_name);
 
-    match metadata {
-
-        Ok(_) => return true,
-        Err(_) => return false
-
-    }
+    return path.exists();
 
 }
 
@@ -71,45 +67,28 @@ fn make_src() {
 
 fn main() {
 
+    let files= [File{file_name: "README.md".to_owned(), content: "## README documentation".to_owned()},
+                            File{file_name: ".gitignore".to_owned(), content: "# Ignore files".to_owned()},
+                            File{file_name: "requirements.txt".to_owned(), content: "## Requirements".to_owned()}];
+
     let prompt: Result<String, AbortReason> = Input::new("Enter Project name", dirname_validation).display();
 
     match &prompt {
 
-        Ok(name) => fs::create_dir(format!("./{}", name)).expect("Unable to create directory"),
+        Ok(name) => fs::create_dir( name).expect("Unable to create directory"),
         Err(reason) => println!("{:?}", reason)
 
     }
 
     let dir_name= prompt.unwrap();
 
-    env::set_current_dir(format!("./{}", dir_name)).unwrap();
+    env::set_current_dir(dir_name).unwrap();
 
-    let readme= File{
+    for file in files {
 
-        file_name: "README.md".to_owned(),
-        content: "## README documentation".to_owned()
+        make_file(file);
 
-    };
-
-    let gitignore= File {
-
-        file_name: ".gitignore".to_owned(),
-        content: "# Ignore files".to_owned()
-
-    };
-
-    let requirements= File {
-
-        file_name: "requirements.txt".to_owned(),
-        content: "## Requirements".to_owned()
-
-    };
-
-    make_file(readme);
-
-    make_file(gitignore);
-
-    make_file(requirements);
+    }
 
     make_src();
 
