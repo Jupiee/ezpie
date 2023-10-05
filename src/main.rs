@@ -2,7 +2,8 @@ use std::io::Write;
 use std::path::Path;
 use std::fs;
 use std::env;
-use cli_prompts::{ prompts::{Input, AbortReason}, DisplayPrompt};
+use std::process::exit;
+use clap::{Command, Arg};
 
 struct File {
 
@@ -11,7 +12,7 @@ struct File {
 
 }
 
-fn dirname_validation(name: &str) -> Result<String, String> {
+fn dirname_validation(name: &String) -> Result<String, String> {
 
     // checks if the name has /, \ and : in it
     if check_dir(&name.to_owned()) {
@@ -22,7 +23,7 @@ fn dirname_validation(name: &str) -> Result<String, String> {
 
     else if name.len() > 0 && !name.contains("/") && !name.contains("\\") && !name.contains(":") {
 
-        return Ok(name.to_owned().replace(" ", "-"))  
+        return Ok(name.to_owned())  
 
     }
 
@@ -71,16 +72,28 @@ fn main() {
                             File{file_name: ".gitignore".to_owned(), content: "# Ignore files".to_owned()},
                             File{file_name: "requirements.txt".to_owned(), content: "## Requirements".to_owned()}];
 
-    let prompt: Result<String, AbortReason> = Input::new("Enter Project name", dirname_validation).display();
+    let prompt= Command::new("Ezpie")
+        .author("Jupie")
+        .version("1.0.0")
+        .about("Build Python projects blazingly fast")
+        .arg(
+            Arg::new("Project name")
+                .required(true)
+                .help("Provide the name of the project without spaces")
+        )
+        .get_matches();
 
-    match &prompt {
+    let dir_name= prompt.get_one::<String>("Project name").unwrap();
 
-        Ok(name) => fs::create_dir( name).expect("Unable to create directory"),
-        Err(reason) => println!("{:?}", reason)
+    match dirname_validation(dir_name) {
+        Ok(name) => fs::create_dir(name).expect("Unable to create directory"),
+        Err(reason) => {
 
+            println!("{:?}", reason);
+            exit(1);
+
+        }
     }
-
-    let dir_name= prompt.unwrap();
 
     env::set_current_dir(dir_name).unwrap();
 
