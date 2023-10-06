@@ -41,15 +41,22 @@ my_project/
 
 ## Usage
 
-1. Open the terminal anywhere and type `ezpie`
-2. Enter the name of the directory you want to create
+1. Open the terminal anywhere and type 
+`ezpie project-name`
+
 
 ## Building from Source
 
 * Use cargo build to compile the project
-```rust
+`
 cargo build --release
-```
+`
+
+## Goals
+
+1. Use Parallelism for faster performance
+2. Flag to create virtual environment
+3. Support for Discord.py projects
 
 ## License
 

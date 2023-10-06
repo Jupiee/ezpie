@@ -14,7 +14,6 @@ struct File {
 
 fn dirname_validation(name: &String) -> Result<String, String> {
 
-    // checks if the name has /, \ and : in it
     if check_dir(&name.to_owned()) {
 
         return Err("Directory already exists".to_owned())
@@ -43,7 +42,7 @@ fn check_dir(dir_name: &String) -> bool {
 
 }
 
-fn make_file(file: File) {
+fn create_file(file: File) {
     
     let mut buffer_file= fs::File::create(file.file_name).unwrap();
 
@@ -52,7 +51,7 @@ fn make_file(file: File) {
 }
 
 // creates a directory with python file
-fn make_src() {
+fn create_src() {
     
     fs::create_dir("./src").expect("Unable to create directory");
 
@@ -66,11 +65,26 @@ fn make_src() {
 
 }
 
-fn main() {
+fn create_project(dir_name: String) {
 
     let files= [File{file_name: "README.md".to_owned(), content: "## README documentation".to_owned()},
                             File{file_name: ".gitignore".to_owned(), content: "# Ignore files".to_owned()},
                             File{file_name: "requirements.txt".to_owned(), content: "## Requirements".to_owned()}];
+
+    fs::create_dir(&dir_name).expect("Unable to create directory");
+    env::set_current_dir(dir_name).unwrap();
+
+    for file in files {
+
+        create_file(file);
+
+    }
+
+    create_src();
+
+}
+
+fn main() {
 
     let prompt= Command::new("Ezpie")
         .author("Jupie")
@@ -84,9 +98,9 @@ fn main() {
         .get_matches();
 
     let dir_name= prompt.get_one::<String>("Project name").unwrap();
-
+    
     match dirname_validation(dir_name) {
-        Ok(name) => fs::create_dir(name).expect("Unable to create directory"),
+        Ok(name) => create_project(name),
         Err(reason) => {
 
             println!("{:?}", reason);
@@ -94,15 +108,5 @@ fn main() {
 
         }
     }
-
-    env::set_current_dir(dir_name).unwrap();
-
-    for file in files {
-
-        make_file(file);
-
-    }
-
-    make_src();
 
 }
