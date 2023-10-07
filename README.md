@@ -54,9 +54,9 @@ cargo build --release
 
 ## Goals
 
-1. Use Parallelism for faster performance
-2. Flag to create virtual environment
-3. Support for Discord.py projects
+* [ ] Use Parallelism for faster performance
+* [ ] Flag to create virtual environment
+* [ ] Support for Discord.py projects
 
 ## License
 
