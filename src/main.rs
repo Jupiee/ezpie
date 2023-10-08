@@ -5,10 +5,10 @@ use std::env;
 use std::process::exit;
 use clap::{Command, Arg};
 
-struct File {
+struct File<'a> {
 
-    file_name: String,
-    content: String
+    file_name: &'a str,
+    content: &'a str
 
 }
 
@@ -42,45 +42,31 @@ fn check_dir(dir_name: &String) -> bool {
 
 }
 
-fn create_file(file: File) {
+fn create_file(file: &File) {
     
-    let mut buffer_file= fs::File::create(file.file_name).unwrap();
+    let mut buffer_file= fs::File::create(&file.file_name).unwrap();
 
     buffer_file.write_all(file.content.as_bytes()).unwrap();
 
 }
 
 // creates a directory with python file
-fn create_src() {
-    
-    fs::create_dir("./src").expect("Unable to create directory");
-
-    let main_content= "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()";
-
-    let mut main_file= fs::File::create("src/main.py").unwrap();
-
-    fs::File::create("src/__init__.py").unwrap();
-
-    main_file.write_all(main_content.as_bytes()).unwrap();
-
-}
-
 fn create_project(dir_name: String) {
 
-    let files= [File{file_name: "README.md".to_owned(), content: "## README documentation".to_owned()},
-                            File{file_name: ".gitignore".to_owned(), content: "# Ignore files".to_owned()},
-                            File{file_name: "requirements.txt".to_owned(), content: "## Requirements".to_owned()}];
+    let files= vec![File{file_name: "README.md", content: "## README documentation"},
+                            File{file_name: ".gitignore", content: "# Ignore files"},
+                            File{file_name: "requirements.txt", content: "## Requirements"},
+                            File{file_name: "src/main.py", content: "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()"}];
 
     fs::create_dir(&dir_name).expect("Unable to create directory");
     env::set_current_dir(dir_name).unwrap();
+    fs::create_dir("./src").expect("Unable to create directory");
 
-    for file in files {
+    for file in files.iter() {
 
-        create_file(file);
+        create_file(file)
 
     }
-
-    create_src();
 
 }
 
