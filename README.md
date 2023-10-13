@@ -9,7 +9,7 @@
 It can create a python project directory
 
 ### What kind of directory can Ezpie create?
-eg.
+For custom projects:
 
 ```
 my_project/
@@ -19,6 +19,16 @@ my_project/
 ├── src/
 │   ├── __init__.py
 │   ├── main.py
+```
+
+For discord.py projects:
+
+```
+my_project/
+├── bot.py
+├── requirements.txt
+├── .gitignore
+├── cogs/
 ```
 
 ## Installation
@@ -41,9 +51,13 @@ my_project/
 
 ## Usage
 
+For Custom Projects:
 1. Open the terminal anywhere and type 
 `ezpie project-name`
 
+For Discord.py Projects:
+1. Open the terminal anywhere and type 
+`ezpie project-name -d` or `ezpie project-name --discord`
 
 ## Building from Source
 
@@ -56,7 +70,7 @@ cargo build --release
 
 * [ ] Use Parallelism for faster performance
 * [ ] Flag to create virtual environment
-* [ ] Support for Discord.py projects
+* [x] Support for Discord.py projects
 
 ## License
 

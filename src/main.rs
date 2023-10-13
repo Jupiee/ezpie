@@ -1,9 +1,10 @@
 mod builder;
 
 use builder::Builder;
+use builder::ProjectType;
 use std::path::Path;
 use std::process::exit;
-use clap::{Command, Arg};
+use clap::{Command, Arg, ArgAction};
 
 fn dirname_validation(name: &String) -> Result<String, String> {
 
@@ -46,16 +47,37 @@ fn main() {
                 .required(true)
                 .help("Provide the name of the project without spaces")
         )
+        .arg(
+            Arg::new("discord")
+                .short('d')
+                .long("discord")
+                .action(ArgAction::SetTrue)
+                .help("Creates project directory for discord.py")
+        )
         .get_matches();
 
     let dir_name= prompt.get_one::<String>("Project name").unwrap();
+    let discord= prompt.get_flag("discord");
 
     match dirname_validation(dir_name) {
+
         Ok(name) => {
+            
+            let builder: Builder;
 
-            let builder= Builder::new(name);
+            if !discord {
 
-            builder.create_project();
+                builder= Builder::new(ProjectType::Custom(name));
+
+            }
+
+            else {
+
+                builder= Builder::new(ProjectType::Discord(name));
+
+            }
+
+            builder.create_custom_project();
 
         },
 
