@@ -68,7 +68,7 @@ cargo build --release
 
 ## Goals
 
-* [ ] Use Parallelism for faster performance
+* [ ] Use tokio for faster performance
 * [ ] Flag to create virtual environment
 * [x] Support for Discord.py projects
 

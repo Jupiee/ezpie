@@ -1,11 +1,12 @@
-use std::io::Write;
-use std::fs;
+use tokio::io::AsyncWriteExt;
+use tokio::fs;
+use tokio::task;
 use std::env;
 
-struct File<'a> {
+struct File {
 
-    file_name: &'a str,
-    content: &'a str,
+    file_name: String,
+    content: String,
 
 }
 
@@ -16,17 +17,20 @@ pub enum ProjectType {
 
 }
 
-pub struct Builder<'a> {
+pub struct Builder {
 
     dir_name: String,
-    files: Vec<File<'a>>,
-    sub_dir: &'a str
+    files: Vec<File>,
+    sub_dir: String
 
 }
 
-impl<'a> Builder<'a> {
+impl Builder {
 
     pub fn new(project_type: ProjectType) -> Self {
+
+        let gitignore= File{file_name: ".gitignore".to_owned(), content: "# Ignore files".to_owned()};
+        let requirements= File{file_name: "requirements.txt".to_owned(), content: "## Requirements".to_owned()};
 
         match project_type {
 
@@ -35,11 +39,11 @@ impl<'a> Builder<'a> {
                 Builder {
 
                     dir_name,
-                    files: vec![File{file_name: "README.md", content: "## README documentation"},
-                                File{file_name: ".gitignore", content: "# Ignore files"},
-                                File{file_name: "requirements.txt", content: "## Requirements"},
-                                File{file_name: "src/main.py", content: "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()"}],
-                    sub_dir: "src"
+                    files: vec![File{file_name: "README.md".to_owned(), content: "## README documentation".to_owned()},
+                                gitignore,
+                                requirements,
+                                File{file_name: "src/main.py".to_owned(), content: "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()".to_owned()}],
+                    sub_dir: "src".to_owned()
                     
                 }
 
@@ -50,10 +54,10 @@ impl<'a> Builder<'a> {
                 Builder {
 
                     dir_name,
-                    files: vec![File{file_name: ".gitignore", content: "# Ignore files"},
-                                File{file_name: "requirements.txt", content: "## Requirements"},
-                                File{file_name: "bot.py", content: "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()"}],
-                    sub_dir: "cogs"
+                    files: vec![gitignore,
+                                requirements,
+                                File{file_name: "bot.py".to_owned(), content: "def main():\n\n\tprint('Hello World')\n\nif __name__ == '__main__':\n\n\tmain()".to_owned()}],
+                    sub_dir: "cogs".to_owned()
 
                 }
 
@@ -63,26 +67,46 @@ impl<'a> Builder<'a> {
 
     }
 
-    pub fn create_custom_project(&self) {
+    pub async fn create_custom_project(&self) -> std::io::Result<()> {
 
-        fs::create_dir(&self.dir_name).expect("Unable to create directory");
+        fs::create_dir_all(&self.dir_name).await?;
         env::set_current_dir(&self.dir_name).unwrap();
-        fs::create_dir(self.sub_dir).expect("Unable to create directory");
+        fs::create_dir_all(&self.sub_dir).await?;
+
+        let mut tasks= vec![];
 
         for file in self.files.iter() {
 
-            self.create_file(file)
+            let file_name= file.file_name.clone();
+            let file_contents= file.content.clone();
+
+            let handle= task::spawn(async move {
+                create_file(file_name, file_contents).await
+            });
+
+            tasks.push(handle);
 
         }
 
+        for handle in tasks {
+
+            handle.await??;
+
+        }
+
+        return Ok(())
+
     }
 
-    fn create_file(&self, file: &File) {
+    
+}
 
-        let mut buffer_file= fs::File::create(&file.file_name).unwrap();
+async fn create_file(file_name: String, file_contents: String) -> std::io::Result<()> {
 
-        buffer_file.write_all(file.content.as_bytes()).unwrap();
+    let mut buffer_file= fs::File::create(file_name).await?;
 
-    }
+    buffer_file.write_all(file_contents.as_bytes()).await?;
+
+    return Ok(())
 
 }

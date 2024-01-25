@@ -3,18 +3,22 @@ mod builder;
 use builder::Builder;
 use builder::ProjectType;
 use std::path::Path;
+use std::time::Instant;
 use std::process::exit;
 use clap::{Command, Arg, ArgAction};
+use tokio;
 
 fn dirname_validation(name: &String) -> Result<String, String> {
 
-    if check_dir(&name.to_owned()) {
+    let path= Path::new(&name);
+
+    if path.exists() {
 
         return Err("Directory already exists".to_owned())
 
     }
 
-    else if name.len() > 0 && !name.contains("/") && !name.contains("\\") && !name.contains(":") {
+    if name.len() > 0 && !name.contains("/") && !name.contains("\\") && !name.contains(":") {
 
         return Ok(name.to_owned())  
 
@@ -28,19 +32,12 @@ fn dirname_validation(name: &String) -> Result<String, String> {
 
 }
 
-fn check_dir(dir_name: &String) -> bool {
-    
-    let path= Path::new(&dir_name);
-
-    return path.exists();
-
-}
-
-fn main() {
+#[tokio::main]
+async fn main() {
 
     let prompt= Command::new("Ezpie")
         .author("Jupie")
-        .version("1.0.0")
+        .version("1.2.0")
         .about("Build Python projects blazingly fast")
         .arg(
             Arg::new("Project name")
@@ -58,6 +55,8 @@ fn main() {
 
     let dir_name= prompt.get_one::<String>("Project name").unwrap();
     let discord= prompt.get_flag("discord");
+    
+    let now= Instant::now();
 
     match dirname_validation(dir_name) {
 
@@ -77,7 +76,9 @@ fn main() {
 
             }
 
-            builder.create_custom_project();
+            builder.create_custom_project().await.unwrap();
+
+            println!("\nSuccessfully created in {:.2?}", now.elapsed());
 
         },
 
